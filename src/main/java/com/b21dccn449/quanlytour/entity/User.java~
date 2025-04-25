@@ -1,0 +1,216 @@
+package com.b21dccn449.quanlytour.entity;
+
+import jakarta.persistence.*;
+// Removed Lombok imports: import lombok.Data; import lombok.NoArgsConstructor; import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
+
+/**
+ * Represents the base 'users' table using JOINED inheritance strategy.
+ * Base entity for all system users (Customer, Staff).
+ * Contains common user information and links to Address and FullName.
+ * Getters and setters are manually implemented.
+ */
+@Entity
+@Table(name = "users", // Changed table name to 'users'
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "username")
+        })
+@Inheritance(strategy = InheritanceType.JOINED) // Strategy for inheritance mapping
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 20) // Column to identify subclass type
+// Removed @Data, @NoArgsConstructor, @AllArgsConstructor
+public abstract class User { // Made abstract
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // --- Relationships to Address and FullName ---
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true) // Cascade ALL: if User is saved/deleted, so is Address
+    @JoinColumn(name = "address_id", referencedColumnName = "id") // Foreign key in 'users' table
+    private Address address;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false) // FullName is mandatory
+    @JoinColumn(name = "full_name_id", referencedColumnName = "id", nullable = false) // Foreign key in 'users' table
+    private FullName fullName;
+
+    private Integer age;
+
+    @Column(nullable = false, unique = true, length = 255)
+    private String email;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true; // Default value
+
+    @Column(nullable = false, length = 255)
+    private String password; // Consider using Spring Security
+
+    @Column(name = "registration_date")
+    private LocalDateTime registrationDate;
+
+    @Column(nullable = false, length = 20)
+    private String tel;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String username;
+
+    // --- Constructors ---
+
+    /**
+     * Default no-argument constructor (required by JPA).
+     */
+    public User() {
+    }
+
+    /**
+     * Constructor with all fields (optional, but can be useful).
+     */
+    public User(Address address, FullName fullName, Integer age, String email, Boolean isActive, String password, LocalDateTime registrationDate, String tel, String username) {
+        this.address = address;
+        this.fullName = fullName;
+        this.age = age;
+        this.email = email;
+        this.isActive = isActive;
+        this.password = password;
+        this.registrationDate = registrationDate;
+        this.tel = tel;
+        this.username = username;
+    }
+
+
+    // --- Getters and Setters (Manually Implemented) ---
+
+    public Long getId() {
+        return id;
+    }
+
+    // No setter for ID as it's typically auto-generated
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public FullName getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(FullName fullName) {
+        this.fullName = fullName;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * Getter for the isActive field.
+     * Follows the boolean getter naming convention.
+     * @return the active status
+     */
+//    public Boolean isActive() {
+//        return isActive;
+//    }
+
+    /**
+     * Setter for the isActive field.
+     * @param active the new active status
+     */
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        // Consider adding password hashing logic here if not handled elsewhere
+        this.password = password;
+    }
+
+    public LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public String getTel() {
+        return tel;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    // --- Lifecycle Callbacks ---
+
+    @PrePersist
+    protected void onCreate() {
+        if (registrationDate == null) {
+            registrationDate = LocalDateTime.now();
+        }
+        if (isActive == null) {
+            isActive = true; // Ensure default value if null
+        }
+    }
+
+    // --- equals(), hashCode(), toString() (Optional but Recommended) ---
+    // It's generally a good practice to implement these methods,
+    // especially if you work with entities in collections or detached state.
+    // However, be careful with relationships (like address, fullName) to avoid infinite loops.
+
+    // Example (basic implementations - adjust as needed):
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false; // Use pattern matching
+
+        return id != null ? id.equals(user.id) : user.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0; // Base hashCode on ID if available
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", fullName=" + (fullName != null ? fullName.getLastName() + " " + fullName.getFirstName() : "null") + // Avoid deep toString recursion
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", isActive=" + isActive +
+                ", registrationDate=" + registrationDate +
+                ", tel='" + tel + '\'' +
+                ", username='" + username + '\'' +
+                // Avoid including address directly to prevent potential issues
+                '}';
+    }
+}

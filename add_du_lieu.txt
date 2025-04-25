@@ -1,0 +1,313 @@
+thêm dữ liệu customer
+-- Xóa dữ liệu cũ nếu cần (Cẩn thận khi chạy trên production!)
+-- DELETE FROM customers;
+-- DELETE FROM users WHERE user_type = 'CUSTOMER';
+-- DELETE FROM addresses WHERE id IN (SELECT address_id FROM users WHERE user_type = 'CUSTOMER');
+-- DELETE FROM full_names WHERE id IN (SELECT full_name_id FROM users WHERE user_type = 'CUSTOMER');
+
+-- Bắt đầu thêm dữ liệu mẫu
+START TRANSACTION;
+
+-- Khách hàng 1
+INSERT INTO full_names (first_name, last_name) VALUES ('An', 'Nguyễn Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('123 Đường ABC', 'Hà Nội');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 25, 'an.nguyen@example.com', true, 'password123', NOW(), '0912345678', 'an.nguyen', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 2
+INSERT INTO full_names (first_name, last_name) VALUES ('Bình', 'Trần Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('456 Phố XYZ', 'Hồ Chí Minh');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 30, 'binh.tran@example.com', true, 'password123', NOW(), '0987654321', 'binh.tran', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 3
+INSERT INTO full_names (first_name, last_name) VALUES ('Châu', 'Lê Minh');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('789 Ngõ KLM', 'Đà Nẵng');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 22, 'chau.le@example.com', false, 'password123', NOW(), '0905112233', 'chau.le', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 4
+INSERT INTO full_names (first_name, last_name) VALUES ('Dung', 'Phạm Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('101 Đường DEF', 'Hải Phòng');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 28, 'dung.pham@example.com', true, 'password123', NOW(), '0936445566', 'dung.pham', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 5
+INSERT INTO full_names (first_name, last_name) VALUES ('Giang', 'Hoàng Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('202 Phố GHI', 'Cần Thơ');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 35, 'giang.hoang@example.com', true, 'password123', NOW(), '0977889900', 'giang.hoang', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 6
+INSERT INTO full_names (first_name, last_name) VALUES ('Hà', 'Vũ Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('303 Ngõ JKL', 'Nha Trang');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 26, 'ha.vu@example.com', true, 'password123', NOW(), '0944112233', 'ha.vu', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 7
+INSERT INTO full_names (first_name, last_name) VALUES ('Hùng', 'Đặng Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('404 Đường MNO', 'Huế');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 40, 'hung.dang@example.com', false, 'password123', NOW(), '0966223344', 'hung.dang', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 8
+INSERT INTO full_names (first_name, last_name) VALUES ('Khanh', 'Ngô Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('505 Phố PQR', 'Biên Hòa');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 29, 'khanh.ngo@example.com', true, 'password123', NOW(), '0918334455', 'khanh.ngo', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 9
+INSERT INTO full_names (first_name, last_name) VALUES ('Linh', 'Bùi Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('606 Ngõ STU', 'Vũng Tàu');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 23, 'linh.bui@example.com', true, 'password123', NOW(), '0909445566', 'linh.bui', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 10
+INSERT INTO full_names (first_name, last_name) VALUES ('Mai', 'Đỗ Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('707 Đường VWX', 'Quy Nhơn');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 31, 'mai.do@example.com', true, 'password123', NOW(), '0988556677', 'mai.do', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 11 (Không có địa chỉ)
+INSERT INTO full_names (first_name, last_name) VALUES ('Nam', 'Phan Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+-- INSERT INTO addresses (street, city) VALUES (NULL, NULL); -- Hoặc không insert vào addresses
+-- SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (NULL, @last_fullname_id, 27, 'nam.phan@example.com', true, 'password123', NOW(), '0911667788', 'nam.phan', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 12
+INSERT INTO full_names (first_name, last_name) VALUES ('Oanh', 'Lý Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('808 Phố YZA', 'Thái Nguyên');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 24, 'oanh.ly@example.com', true, 'password123', NOW(), '0976778899', 'oanh.ly', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 13
+INSERT INTO full_names (first_name, last_name) VALUES ('Phúc', 'Trịnh Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('909 Ngõ BCD', 'Buôn Ma Thuột');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 33, 'phuc.trinh@example.com', false, 'password123', NOW(), '0933889900', 'phuc.trinh', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 14
+INSERT INTO full_names (first_name, last_name) VALUES ('Quỳnh', 'Đinh Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('111 Đường EFG', 'Long Xuyên');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 21, 'quynh.dinh@example.com', true, 'password123', NOW(), '0902990011', 'quynh.dinh', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 15
+INSERT INTO full_names (first_name, last_name) VALUES ('Sơn', 'Vương Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('222 Phố HIJ', 'Pleiku');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 38, 'son.vuong@example.com', true, 'password123', NOW(), '0987001122', 'son.vuong', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 16
+INSERT INTO full_names (first_name, last_name) VALUES ('Thảo', 'Lâm Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('333 Ngõ KLM', 'Rạch Giá');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 27, 'thao.lam@example.com', true, 'password123', NOW(), '0945112233', 'thao.lam', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 17
+INSERT INTO full_names (first_name, last_name) VALUES ('Thành', 'Mai Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('444 Đường NOP', 'Phan Thiết');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 32, 'thanh.mai@example.com', false, 'password123', NOW(), '0917223344', 'thanh.mai', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 18
+INSERT INTO full_names (first_name, last_name) VALUES ('Trang', 'Dương Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('555 Phố QRS', 'Cà Mau');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 20, 'trang.duong@example.com', true, 'password123', NOW(), '0908334455', 'trang.duong', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 19
+INSERT INTO full_names (first_name, last_name) VALUES ('Tuấn', 'Hồ Văn');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('666 Ngõ TUV', 'Bạc Liêu');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 45, 'tuan.ho@example.com', true, 'password123', NOW(), '0965445566', 'tuan.ho', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Khách hàng 20
+INSERT INTO full_names (first_name, last_name) VALUES ('Uyên', 'Phùng Thị');
+SET @last_fullname_id = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('777 Đường WXY', 'Sóc Trăng');
+SET @last_address_id = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@last_address_id, @last_fullname_id, 36, 'uyen.phung@example.com', true, 'password123', NOW(), '0913556677', 'uyen.phung', 'CUSTOMER');
+SET @last_user_id = LAST_INSERT_ID();
+INSERT INTO customers (user_id) VALUES (@last_user_id);
+
+-- Kết thúc transaction
+COMMIT;
+
+-------------------------------------------------------------------------------------------------------------------
+SQL Script thêm dữ liệu Staff, Tour, TourDetail
+
+-- Thêm dữ liệu mẫu cho Nhân viên (Staff)
+START TRANSACTION;
+
+-- Nhân viên 1
+INSERT INTO full_names (first_name, last_name) VALUES ('Minh Anh', 'Nguyễn');
+SET @fn_staff1 = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('10 Lý Thường Kiệt', 'Hà Nội');
+SET @addr_staff1 = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@addr_staff1, @fn_staff1, 28, 'minhanh.nv@tourcorp.com', true, 'staffpass', NOW(), '098111222', 'minhanh.nv', 'STAFF');
+SET @user_staff1 = LAST_INSERT_ID();
+INSERT INTO staff (user_id, staff_code, salary, position, hire_date)
+VALUES (@user_staff1, 'NV001', 15000000, 'Nhân viên bán vé', '2024-01-15');
+
+-- Nhân viên 2
+INSERT INTO full_names (first_name, last_name) VALUES ('Bảo Ngọc', 'Trần');
+SET @fn_staff2 = LAST_INSERT_ID();
+INSERT INTO addresses (street, city) VALUES ('25 Hai Bà Trưng', 'Hồ Chí Minh');
+SET @addr_staff2 = LAST_INSERT_ID();
+INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+VALUES (@addr_staff2, @fn_staff2, 25, 'baongoc.tran@tourcorp.com', true, 'staffpass', NOW(), '097222333', 'baongoc.tran', 'STAFF');
+SET @user_staff2 = LAST_INSERT_ID();
+INSERT INTO staff (user_id, staff_code, salary, position, hire_date)
+VALUES (@user_staff2, 'NV002', 14000000, 'Nhân viên bán vé', '2024-03-01');
+
+-- (Tùy chọn) Thêm Quản lý (Manager) nếu cần
+-- INSERT INTO full_names (first_name, last_name) VALUES ('Quang Huy', 'Lê');
+-- SET @fn_manager1 = LAST_INSERT_ID();
+-- INSERT INTO addresses (street, city) VALUES ('5 Đống Đa', 'Đà Nẵng');
+-- SET @addr_manager1 = LAST_INSERT_ID();
+-- INSERT INTO users (address_id, full_name_id, age, email, is_active, password, registration_date, tel, username, user_type)
+-- VALUES (@addr_manager1, @fn_manager1, 35, 'quanghuy.le@tourcorp.com', true, 'managerpass', NOW(), '090555666', 'quanghuy.le', 'MANAGER');
+-- SET @user_manager1 = LAST_INSERT_ID();
+-- INSERT INTO staff (user_id, staff_code, salary, position, hire_date) -- Vẫn insert vào staff trước
+-- VALUES (@user_manager1, 'QL001', 25000000, 'Quản lý chi nhánh', '2023-05-10');
+-- INSERT INTO managers (user_id, manager_code, title) -- Sau đó insert vào managers
+-- VALUES (@user_manager1, 'MNG001', 'Quản lý Bán hàng');
+
+COMMIT;
+
+
+-- Thêm dữ liệu mẫu cho Tour
+START TRANSACTION;
+
+INSERT INTO tours (name, category, description, departure, duration_hours, min_participants, max_participants, base_price, status) VALUES
+('Khám phá Vịnh Hạ Long 2N1Đ', 'Du thuyền', 'Trải nghiệm vẻ đẹp kỳ quan thiên nhiên thế giới Vịnh Hạ Long trên du thuyền sang trọng.', 'Hà Nội', 48, 10, 30, 2500000, 'ACTIVE'),
+('City Tour Sài Gòn Nửa Ngày', 'Tham quan thành phố', 'Tham quan các địa danh nổi tiếng của TP. Hồ Chí Minh: Dinh Độc Lập, Bưu điện Thành phố, Nhà thờ Đức Bà.', 'Hồ Chí Minh', 4, 5, 25, 500000, 'ACTIVE'),
+('Nghỉ dưỡng tại Đà Nẵng - Hội An 3N2Đ', 'Nghỉ dưỡng', 'Tận hưởng bãi biển Mỹ Khê và khám phá phố cổ Hội An.', 'Đà Nẵng', 72, 2, 40, 3200000, 'ACTIVE'),
+('Chinh phục Fansipan 2N1Đ', 'Leo núi', 'Thử thách bản thân với đỉnh núi cao nhất Đông Dương.', 'Sapa', 48, 8, 15, 4000000, 'ACTIVE'),
+('Miền Tây Sông Nước 1 Ngày', 'Khám phá văn hóa', 'Đi thuyền trên sông Mekong, thăm vườn trái cây, nghe đờn ca tài tử.', 'Hồ Chí Minh', 10, 10, 35, 800000, 'INACTIVE'); -- Tour này không hoạt động
+
+SET @tour_halong = (SELECT id FROM tours WHERE name = 'Khám phá Vịnh Hạ Long 2N1Đ');
+SET @tour_saigon = (SELECT id FROM tours WHERE name = 'City Tour Sài Gòn Nửa Ngày');
+SET @tour_danang = (SELECT id FROM tours WHERE name = 'Nghỉ dưỡng tại Đà Nẵng - Hội An 3N2Đ');
+SET @tour_fansipan = (SELECT id FROM tours WHERE name = 'Chinh phục Fansipan 2N1Đ');
+SET @tour_mientay = (SELECT id FROM tours WHERE name = 'Miền Tây Sông Nước 1 Ngày');
+
+COMMIT;
+
+
+-- Thêm dữ liệu mẫu cho TourDetail (Các chuyến đi cụ thể)
+START TRANSACTION;
+
+-- Chuyến Hạ Long 1 (Còn chỗ)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_halong, '2025-05-10 08:00:00', '2025-05-11 17:00:00', 'Nhà hát Lớn Hà Nội', 2600000, 25, 15, 'AVAILABLE');
+
+-- Chuyến Hạ Long 2 (Sắp diễn ra, ít chỗ)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_halong, '2025-05-15 08:00:00', '2025-05-16 17:00:00', 'Nhà hát Lớn Hà Nội', 2650000, 20, 18, 'AVAILABLE');
+
+-- Chuyến Sài Gòn 1 (Sáng)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_saigon, '2025-05-12 08:30:00', '2025-05-12 12:30:00', 'Bưu điện Thành phố', 500000, 25, 10, 'AVAILABLE');
+
+-- Chuyến Sài Gòn 2 (Chiều)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_saigon, '2025-05-12 14:00:00', '2025-05-12 18:00:00', 'Bưu điện Thành phố', 500000, 25, 5, 'AVAILABLE');
+
+-- Chuyến Đà Nẵng 1 (Đã đầy)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_danang, '2025-06-01 14:00:00', '2025-06-03 12:00:00', 'Sân bay Đà Nẵng', 3200000, 30, 30, 'FULL');
+
+-- Chuyến Đà Nẵng 2 (Còn chỗ)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_danang, '2025-06-10 14:00:00', '2025-06-12 12:00:00', 'Sân bay Đà Nẵng', 3300000, 40, 20, 'AVAILABLE');
+
+-- Chuyến Fansipan 1
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_fansipan, '2025-07-05 06:00:00', '2025-07-06 18:00:00', 'Nhà thờ Đá Sapa', 4000000, 15, 5, 'AVAILABLE');
+
+-- Chuyến Miền Tây (Tour đã INACTIVE nên chuyến này cũng không bán được)
+INSERT INTO tour_details (tour_id, time_start, time_finish, meeting_point, price, max_capacity, amount_customer, status) VALUES
+(@tour_mientay, '2025-05-20 07:00:00', '2025-05-20 17:00:00', 'Quận 1, TP.HCM', 800000, 35, 0, 'CANCELLED'); -- Trạng thái chuyến đi bị hủy
+
+COMMIT;
+

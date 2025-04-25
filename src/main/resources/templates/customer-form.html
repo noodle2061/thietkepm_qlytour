@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Form Khách hàng</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 960px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        .form-label {
+            margin-bottom: 0.5rem;
+        }
+        .status-checkbox-col {
+             padding-top: 2.375rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center mb-4" th:text="${pageTitle}">Form Khách hàng</h1>
+
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/customers/save}" th:object="${customer}" method="post" class="needs-validation" novalidate>
+
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:if="*{address != null}" th:field="*{address.id}" />
+            <input type="hidden" th:if="*{fullName != null}" th:field="*{fullName.id}" />
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="lastName" class="form-label">Họ <span class="text-danger">*</span></label>
+                    <input type="text" id="lastName" th:field="*{fullName.lastName}" class="form-control" th:errorclass="is-invalid" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName.lastName')}" th:errors="*{fullName.lastName}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="firstName" class="form-label">Tên <span class="text-danger">*</span></label>
+                    <input type="text" id="firstName" th:field="*{fullName.firstName}" class="form-control" th:errorclass="is-invalid" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName.firstName')}" th:errors="*{fullName.firstName}"></div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" id="email" th:field="*{email}" class="form-control" th:errorclass="is-invalid" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="tel" class="form-label">Điện thoại <span class="text-danger">*</span></label>
+                    <input type="tel" id="tel" th:field="*{tel}" class="form-control" th:errorclass="is-invalid" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('tel')}" th:errors="*{tel}"></div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="username" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                    <input type="text" id="username" th:field="*{username}" class="form-control" th:errorclass="is-invalid" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-control" th:errorclass="is-invalid" th:required="*{id == null}">
+                     <small class="form-text text-muted">Để trống nếu không muốn đổi mật khẩu khi cập nhật.</small>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="age" class="form-label">Tuổi</label>
+                    <input type="number" id="age" th:field="*{age}" class="form-control" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+                </div>
+                <div class="col-md-6 status-checkbox-col">
+                     <div class="form-check">
+                        <input type="checkbox" id="isActive" th:field="*{isActive}" class="form-check-input">
+                        <label for="isActive" class="form-check-label">Hoạt động</label>
+                     </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                 <div class="col-md-6">
+                    <label for="street" class="form-label">Đường/Số nhà</label>
+                    <input type="text" id="street" th:field="*{address.street}" class="form-control" th:errorclass="is-invalid">
+                     <div class="invalid-feedback" th:if="${#fields.hasErrors('address.street')}" th:errors="*{address.street}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="city" class="form-label">Thành phố/Tỉnh</label>
+                    <input type="text" id="city" th:field="*{address.city}" class="form-control" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('address.city')}" th:errors="*{address.city}"></div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <a th:href="@{/customers}" class="btn btn-secondary me-2">Hủy</a>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
