@@ -3,7 +3,6 @@ package com.b21dccn449.quanlytour.service;
 import java.util.List; // Import List
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,11 +22,6 @@ public class CustomerService {
 
     @Transactional
     public Customer createCustomer(Customer customer) {
-        // **QUAN TRỌNG**: Nên có kiểm tra username/email tồn tại và mã hóa mật khẩu ở
-        // đây
-        // if (customerRepository.existsByUsername(customer.getUsername())) { ... }
-        // if (customerRepository.existsByEmail(customer.getEmail())) { ... }
-        // customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         return customerRepository.save(customer);
     }
 
@@ -82,11 +76,9 @@ public class CustomerService {
             return List.of();
         }
         String likePattern = "%" + keyword.toLowerCase() + "%";
-        // Gọi phương thức mới trong repository
         return customerRepository.searchByNameOrPhoneOrEmail(likePattern);
     }
 
-    // Phương thức kiểm tra tồn tại (nếu cần gọi từ service khác)
     @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
         return customerRepository.existsByUsername(username);

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Khách Hàng - In</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif; /* Classic font for printing */
+            background-color: #fff; /* White background for printing */
+            color: #000; /* Black text for printing */
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        .header-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header-info h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .customer-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .customer-details-table th,
+        .customer-details-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .customer-details-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            width: 30%;
+        }
+        .print-button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .print-button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        /* CSS for print mode */
+        @media print {
+            body {
+                margin: 0; /* Remove margins when printing */
+                font-size: 12pt; /* Standard font size for printing */
+            }
+            .container {
+                border: none; /* Remove container border when printing */
+                box-shadow: none; /* Remove box shadow when printing */
+                padding: 0;
+                max-width: 100%;
+            }
+            .print-button-container {
+                display: none; /* Hide print button when printing */
+            }
+            .btn-back-container {
+                display: none; /* Hide back button when printing */
+            }
+            /* Ensure tables display well when printing */
+            .customer-details-table th,
+            .customer-details-table td {
+                border: 1px solid #000 !important; /* Clear black border when printing */
+            }
+            .customer-details-table th {
+                background-color: #eee !important; /* Light gray background for table header when printing */
+                -webkit-print-color-adjust: exact; /* Ensure background color is printed on Chrome/Safari */
+                print-color-adjust: exact; /* Standard CSS for background color */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-info">
+            <h1>Thông Tin Chi Tiết Khách Hàng</h1>
+            <p>Ngày tạo: <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
+
+        <div th:if="${customer == null}" class="alert alert-danger" role="alert">
+            Không tìm thấy thông tin khách hàng.
+        </div>
+
+        <div th:if="${customer != null}">
+            <table class="customer-details-table">
+                <tbody>
+                    <tr>
+                        <th>ID Khách Hàng</th>
+                        <td th:text="${customer.id}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Họ và Tên</th>
+                        <td th:text="${customer.fullName?.lastName + ' ' + customer.fullName?.firstName}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td th:text="${customer.email}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Số Điện Thoại</th>
+                        <td th:text="${customer.tel}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Tên Đăng Nhập</th>
+                        <td th:text="${customer.username}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Tuổi</th>
+                        <td th:text="${customer.age != null ? customer.age : 'N/A'}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Ngày Đăng Ký</th>
+                        <td th:text="${customer.registrationDate != null ? #temporals.format(customer.registrationDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Trạng Thái</th>
+                        <td>
+                            <span th:if="${customer.isActive}" class="badge bg-success">Hoạt động</span>
+                            <span th:unless="${customer.isActive}" class="badge bg-danger">Không hoạt động</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Địa Chỉ Đường</th>
+                        <td th:text="${customer.address?.street != null && !customer.address.street.isBlank() ? customer.address.street : 'N/A'}">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Thành Phố/Tỉnh</th>
+                        <td th:text="${customer.address?.city != null && !customer.address.city.isBlank() ? customer.address.city : 'N/A'}">N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${customer.orders != null and !customer.orders.isEmpty()}">
+                <h4 class="mt-4">Lịch Sử Đặt Tour</h4>
+                <table class="customer-details-table">
+                    <thead>
+                        <tr>
+                            <th>Mã Đơn Hàng</th>
+                            <th>Ngày Đặt</th>
+                            <th>Tên Tour</th>
+                            <th>Tổng Tiền</th>
+                            <th>Trạng Thái Thanh Toán</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${customer.orders}">
+                            <td th:text="${order.bookingReference}">N/A</td>
+                            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">N/A</td>
+                            <td th:text="${order.tourDetail?.tour?.name}">N/A</td>
+                            <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">N/A</td>
+                            <td th:text="${order.paymentStatus}">N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+             <div th:if="${customer.orders == null or customer.orders.isEmpty()}" class="alert alert-info mt-3">
+                Khách hàng này chưa có đơn đặt tour nào.
+            </div>
+        </div>
+
+        <div class="print-button-container">
+            <button onclick="window.print()" class="btn btn-primary print-button">In Thông Tin</button>
+        </div>
+        <div class="text-center mt-3 btn-back-container">
+             <a th:href="@{/customers}" class="btn btn-secondary">Quay lại Danh sách</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

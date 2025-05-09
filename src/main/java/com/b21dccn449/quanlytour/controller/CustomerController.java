@@ -45,6 +45,7 @@ public class CustomerController {
     public String listCustomers(Model model,
                                 @RequestParam(name = "page", defaultValue = "1") int page,
                                 @RequestParam(name = "size", defaultValue = "10") int size) {
+        page = Math.max(1, page);
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
         Page<Customer> customerPage = customerService.getAllCustomers(pageable);
 
@@ -65,10 +66,9 @@ public class CustomerController {
     @GetMapping("/add")
     public String showAddForm(Model model) {
         Customer customer = new Customer();
-        // Khởi tạo các đối tượng lồng nhau để form không bị lỗi khi truy cập lần đầu
         customer.setFullName(new FullName());
         customer.setAddress(new Address());
-        customer.setActive(true); // Giá trị mặc định
+        customer.setActive(true);
         model.addAttribute("customer", customer);
         model.addAttribute("pageTitle", "Thêm Khách hàng Mới");
         return "customer-form";
@@ -98,14 +98,14 @@ public class CustomerController {
 
     @PostMapping("/save")
     public String saveOrUpdateCustomer(@ModelAttribute("customer") Customer customer,
-                                       BindingResult bindingResult, // BindingResult phải ngay sau @ModelAttribute
+                                       BindingResult bindingResult,
                                        Model model,
                                        RedirectAttributes redirectAttributes) {
 
         Set<ConstraintViolation<Customer>> violations;
-        if (customer.getId() == null) { // Trường hợp tạo mới
+        if (customer.getId() == null) {
             violations = validator.validate(customer, OnCreate.class, Default.class);
-        } else { // Trường hợp cập nhật
+        } else {
             violations = validator.validate(customer, OnUpdate.class, Default.class);
         }
 
@@ -114,6 +114,30 @@ public class CustomerController {
                 String propertyPath = violation.getPropertyPath().toString();
                 String message = violation.getMessage();
                 bindingResult.rejectValue(propertyPath, "error." + propertyPath, message);
+            }
+        }
+
+        if (customer.getId() == null) {
+            if (customer.getEmail() != null && !customer.getEmail().isBlank() && customerService.existsByEmail(customer.getEmail())) {
+                bindingResult.rejectValue("email", "error.customer.email.exists", "Email này đã được sử dụng. Vui lòng chọn một email khác.");
+            }
+            if (customer.getUsername() != null && !customer.getUsername().isBlank() && customerService.existsByUsername(customer.getUsername())) {
+                bindingResult.rejectValue("username", "error.customer.username.exists", "Tên đăng nhập này đã được sử dụng. Vui lòng chọn một tên đăng nhập khác.");
+            }
+        } else {
+            Optional<Customer> existingCustomerOpt = customerService.getCustomerById(customer.getId());
+            if (existingCustomerOpt.isPresent()) {
+                Customer dbCustomer = existingCustomerOpt.get();
+                if (customer.getEmail() != null && !customer.getEmail().isBlank() &&
+                    !dbCustomer.getEmail().equalsIgnoreCase(customer.getEmail()) &&
+                    customerService.existsByEmail(customer.getEmail())) {
+                    bindingResult.rejectValue("email", "error.customer.email.exists", "Email này đã được sử dụng bởi một tài khoản khác. Vui lòng chọn một email khác.");
+                }
+                if (customer.getUsername() != null && !customer.getUsername().isBlank() &&
+                    !dbCustomer.getUsername().equalsIgnoreCase(customer.getUsername()) &&
+                    customerService.existsByUsername(customer.getUsername())) {
+                     bindingResult.rejectValue("username", "error.customer.username.exists", "Tên đăng nhập này đã được sử dụng bởi một tài khoản khác. Vui lòng chọn một tên đăng nhập khác.");
+                }
             }
         }
 
@@ -145,8 +169,7 @@ public class CustomerController {
         } catch (Exception e) {
             System.err.println("Error saving customer: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("errorMessage", "Lỗi khi lưu khách hàng: " + e.getMessage());
-            return "customer-form";
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi lưu thông tin khách hàng.");
         }
         return "redirect:/customers";
     }
@@ -163,8 +186,25 @@ public class CustomerController {
         } catch (Exception e) {
             System.err.println("Error deleting customer: " + e.getMessage());
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi xóa khách hàng: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi xóa khách hàng. Khách hàng có thể đang có các đơn hàng liên quan.");
         }
         return "redirect:/customers";
+    }
+
+    @GetMapping("/print/{id}")
+    public String showPrintCustomerDetails(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Customer> customerOptional = customerService.getCustomerById(id);
+        if (customerOptional.isPresent()) {
+            Customer customer = customerOptional.get();
+            // Eagerly fetch orders if needed for the print page and not already fetched
+            // This depends on your JPA setup (FetchType.LAZY/EAGER)
+            // If orders are LAZY, you might need to initialize them here:
+            // Hibernate.initialize(customer.getOrders()); // or customer.getOrders().size();
+            model.addAttribute("customer", customer);
+            return "customer-details-print";
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khách hàng với ID: " + id + " để in.");
+            return "redirect:/customers";
+        }
     }
 }
