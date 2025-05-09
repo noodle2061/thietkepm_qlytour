@@ -33,9 +33,7 @@ public class Staff extends User {
     @Column(name = "hire_date")
     private LocalDate hireDate;
 
-
     @OneToMany(mappedBy = "salesperson", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Order> soldOrders;
-
 }

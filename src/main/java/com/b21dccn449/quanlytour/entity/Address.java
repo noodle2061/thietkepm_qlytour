@@ -1,33 +1,26 @@
 package com.b21dccn449.quanlytour.entity;
 
 import jakarta.persistence.*;
-// Removed Lombok imports
-// import lombok.Data;
-// import lombok.NoArgsConstructor;
-// import lombok.AllArgsConstructor;
-import java.util.Objects; // Import for equals/hashCode
+import jakarta.validation.constraints.NotBlank;
 
-/**
- * Represents the 'addresses' table.
- * Stores address details, associated with a User.
- * Getters and setters are manually implemented.
- */
+import java.util.Objects;
+
 @Entity
 @Table(name = "addresses")
-// Removed Lombok annotations @Data, @NoArgsConstructor, @AllArgsConstructor
 public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Địa chỉ không được để trống")
     @Column(length = 100)
-    private String street; // Số nhà, tên đường
+    private String street;
 
+    @NotBlank(message = "Thành phố không được để trống")
     @Column(length = 100)
-    private String city; // Thành phố/Tỉnh
+    private String city;
 
-    // --- Constructors ---
     public Address() {
     }
 
@@ -36,13 +29,15 @@ public class Address {
         this.city = city;
     }
 
-    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
     }
 
-    // No setter for ID
+    // THÊM SETTER CHO ID
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getStreet() {
         return street;
@@ -60,7 +55,6 @@ public class Address {
         this.city = city;
     }
 
-    // --- equals(), hashCode(), toString() ---
 
     @Override
     public boolean equals(Object o) {

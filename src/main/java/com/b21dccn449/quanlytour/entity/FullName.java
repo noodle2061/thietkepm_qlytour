@@ -1,29 +1,22 @@
 package com.b21dccn449.quanlytour.entity;
 
 import jakarta.persistence.*;
-// Removed Lombok imports
-// import lombok.Data;
-// import lombok.NoArgsConstructor;
-// import lombok.AllArgsConstructor;
-import java.util.Objects; // Import for equals/hashCode
+import jakarta.validation.constraints.NotBlank;
+import java.util.Objects;
 
-/**
- * Represents the 'full_names' table.
- * Stores first and last names, associated with a User.
- * Getters and setters are manually implemented.
- */
 @Entity
 @Table(name = "full_names")
-// Removed Lombok annotations @Data, @NoArgsConstructor, @AllArgsConstructor
 public class FullName {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Không được để trống")
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName; // Tên
 
+    @NotBlank(message = "Không được để trống")
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName; // Họ
 
@@ -36,13 +29,15 @@ public class FullName {
         this.lastName = lastName;
     }
 
-    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
     }
 
-    // No setter for ID
+    // THÊM SETTER CHO ID
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -59,8 +54,6 @@ public class FullName {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-    // --- equals(), hashCode(), toString() ---
 
     @Override
     public boolean equals(Object o) {

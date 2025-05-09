@@ -1,32 +1,33 @@
 package com.b21dccn449.quanlytour.service;
 
-import com.b21dccn449.quanlytour.entity.Customer;
-import com.b21dccn449.quanlytour.repository.CustomerRepository;
+import java.util.List; // Import List
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import com.b21dccn449.quanlytour.entity.Customer;
+import com.b21dccn449.quanlytour.repository.CustomerRepository;
 
-/**
- * Service class for managing Customer entities.
- * Provides CRUD operations and pagination.
- */
 @Service
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    @Autowired
     public CustomerService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
     @Transactional
     public Customer createCustomer(Customer customer) {
-        // Logic validation nếu cần
+        // **QUAN TRỌNG**: Nên có kiểm tra username/email tồn tại và mã hóa mật khẩu ở
+        // đây
+        // if (customerRepository.existsByUsername(customer.getUsername())) { ... }
+        // if (customerRepository.existsByEmail(customer.getEmail())) { ... }
+        // customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         return customerRepository.save(customer);
     }
 
@@ -41,33 +42,27 @@ public class CustomerService {
     @Transactional
     public Optional<Customer> updateCustomer(Long id, Customer customerDetails) {
         return customerRepository.findById(id).map(existingCustomer -> {
-            // Cập nhật các trường từ User
-            existingCustomer.setFullName(customerDetails.getFullName());
-            existingCustomer.setAddress(customerDetails.getAddress());
-            existingCustomer.setEmail(customerDetails.getEmail());
-            existingCustomer.setTel(customerDetails.getTel());
-            existingCustomer.setAge(customerDetails.getAge());
-            existingCustomer.setUsername(customerDetails.getUsername());
-            existingCustomer.setActive(customerDetails.isActive()); // Sử dụng getter/setter
-
-            // Xử lý mật khẩu: chỉ cập nhật nếu có mật khẩu mới được cung cấp
             if (customerDetails.getPassword() != null && !customerDetails.getPassword().isBlank()) {
-                 // Nên có logic mã hóa mật khẩu ở đây trước khi set
-                 existingCustomer.setPassword(customerDetails.getPassword());
+                existingCustomer.setPassword(customerDetails.getPassword());
             }
-
-            // --- ĐÃ XÓA CẬP NHẬT CHO rewardPoint và customerRanking ---
-            // existingCustomer.setRewardPoint(customerDetails.getRewardPoint());
-            // existingCustomer.setCustomerRanking(customerDetails.getCustomerRanking());
-
-            // Xử lý cascade nếu cần
-             if (existingCustomer.getAddress() != null && existingCustomer.getAddress().getId() == null) {
-                 // Logic để lưu Address mới nếu cần
-             }
-             if (existingCustomer.getFullName() != null && existingCustomer.getFullName().getId() == null) {
-                 // Logic để lưu FullName mới nếu cần
-             }
-
+            if (customerDetails.getFullName() != null) {
+                existingCustomer.setFullName(customerDetails.getFullName());
+            }
+            if (customerDetails.getTel() != null) {
+                existingCustomer.setTel(customerDetails.getTel());
+            }
+            if (customerDetails.getEmail() != null) {
+                existingCustomer.setEmail(customerDetails.getEmail());
+            }
+            if (customerDetails.getAddress() != null) {
+                existingCustomer.setAddress(customerDetails.getAddress());
+            }
+            if (customerDetails.getAge() != null) {
+                existingCustomer.setAge(customerDetails.getAge());
+            }
+            if (customerDetails.isActive() != null) {
+                existingCustomer.setActive(customerDetails.isActive());
+            }
             return customerRepository.save(existingCustomer);
         });
     }
@@ -79,5 +74,26 @@ public class CustomerService {
             return true;
         }
         return false;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Customer> searchCustomersByNameOrPhoneOrEmail(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+        String likePattern = "%" + keyword.toLowerCase() + "%";
+        // Gọi phương thức mới trong repository
+        return customerRepository.searchByNameOrPhoneOrEmail(likePattern);
+    }
+
+    // Phương thức kiểm tra tồn tại (nếu cần gọi từ service khác)
+    @Transactional(readOnly = true)
+    public boolean existsByUsername(String username) {
+        return customerRepository.existsByUsername(username);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return customerRepository.existsByEmail(email);
     }
 }

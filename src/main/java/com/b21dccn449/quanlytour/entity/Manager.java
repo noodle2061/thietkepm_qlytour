@@ -24,6 +24,4 @@ public class Manager extends Staff {
     @Column(length = 100)
     private String title;
 
-    // Removed the 'managedStaff' field and its annotations
-
 }

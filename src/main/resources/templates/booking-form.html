@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt vé Tour tại quầy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container { max-width: 1140px; margin-top: 30px; }
+        .card { margin-bottom: 1.5rem; }
+        .search-results table, .paginated-list table { margin-top: 1rem; }
+        .selected-row { border: 2px solid #0d6efd !important; background-color: #e7f1ff !important; } /* Highlight row */
+        .form-section { margin-top: 1rem; }
+        .form-label { font-weight: 500; }
+        .error-message, .text-danger { color: #dc3545; font-size: 0.875em; } /* Consistent error style */
+        .required-field::after { content: " *"; color: #dc3545; }
+        .pagination-nav { margin-top: 1.5rem; }
+        /* Style for validation errors */
+        .is-invalid { border-color: #dc3545 !important; }
+        .invalid-feedback { display: block; width: 100%; margin-top: .25rem; font-size: .875em; color: #dc3545; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mb-4">Đặt vé Tour tại quầy</h1>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body pb-0">
+             <form th:action="@{/booking/search-tours}" method="post" class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label for="keyword" class="form-label">Tìm kiếm Tour (Tên, điểm đến,...)</label>
+                    <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Ví dụ: Hạ Long, City Tour Sài Gòn" th:value="${bookingData?.searchKeyword}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Tìm kiếm Tour</button>
+                    <a th:href="@{/booking/new}" class="btn btn-outline-secondary w-100 mt-1" th:if="${bookingData?.searchKeyword != null}">Xem tất cả Tour</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <form th:action="@{/booking/process}" th:object="${bookingData}" method="post" novalidate>
+
+         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">Global error message</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4>1. Chọn Chuyến đi (Tour Detail)</h4>
+                <small th:if="*{selectedTourDetailId == null}" class="text-muted d-block">Vui lòng tìm và chọn một chuyến đi từ kết quả bên dưới.</small>
+                 <div th:if="*{selectedTourDetailId != null}" class="alert alert-info mt-2 p-2">
+                      Đã chọn Tour ID: <strong th:text="*{selectedTourDetailId}"></strong>
+                      </div>
+            </div>
+            <div class="card-body">
+                <div class="search-results" th:if="*{searchResults != null}">
+                    <h5 th:if="${not #lists.isEmpty(searchResults)}">Kết quả tìm kiếm Tour:</h5>
+                    <div th:if="${#lists.isEmpty(searchResults) and searchKeyword != null}" class="alert alert-warning" role="alert">
+                        Không tìm thấy chuyến đi nào phù hợp với từ khóa "<strong th:text="*{searchKeyword}"></strong>".
+                    </div>
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(searchResults)}">
+                        <table class="table table-hover table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên Tour</th> <th>Chuyến đi (ID)</th> <th>Khởi hành</th> <th>Kết thúc</th> <th>Điểm tập trung</th> <th>Giá (VNĐ)</th> <th>Còn lại</th> <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="td : *{searchResults}" th:classappend="${td.id == selectedTourDetailId ? 'selected-row' : ''}">
+                                    <td th:text="${td.tour?.name}">Tên Tour</td>
+                                    <td th:text="${td.id}">ID</td>
+                                    <td th:text="${#temporals.format(td.timeStart, 'dd/MM/yyyy HH:mm')}">Start</td>
+                                    <td th:text="${#temporals.format(td.timeFinish, 'dd/MM/yyyy HH:mm')}">Finish</td>
+                                    <td th:text="${td.meetingPoint}">Meeting</td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(td.price, 0, 'COMMA', 0, 'POINT')}">Price</td>
+                                    <td class="text-center" th:text="${td.maxCapacity - td.amountCustomer}">Available</td>
+                                    <td class="text-center">
+                                        <form th:action="@{/booking/select-tour}" method="post" style="display: inline;">
+                                            <input type="hidden" name="tourDetailId" th:value="${td.id}" />
+                                            <button type="submit" class="btn btn-success btn-sm" th:disabled="${td.id == selectedTourDetailId}">Chọn</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="paginated-list" th:if="*{searchResults == null} and ${tourDetailPage != null}">
+                    <h5 th:if="${tourDetailPage.hasContent()}">Danh sách các chuyến đi đang mở bán:</h5>
+                    <div th:if="${!tourDetailPage.hasContent()}" class="alert alert-info mt-3" role="alert">
+                        Hiện tại không có chuyến đi nào đang mở bán.
+                    </div>
+                    <div class="table-responsive" th:if="${tourDetailPage.hasContent()}">
+                        <table class="table table-hover table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên Tour</th> <th>Chuyến đi (ID)</th> <th>Khởi hành</th> <th>Kết thúc</th> <th>Điểm tập trung</th> <th>Giá (VNĐ)</th> <th>Còn lại</th> <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="td : ${tourDetailPage.content}" th:classappend="${td.id == selectedTourDetailId ? 'selected-row' : ''}">
+                                    <td th:text="${td.tour?.name}">Tên Tour</td>
+                                    <td th:text="${td.id}">ID</td>
+                                    <td th:text="${#temporals.format(td.timeStart, 'dd/MM/yyyy HH:mm')}">Start</td>
+                                    <td th:text="${#temporals.format(td.timeFinish, 'dd/MM/yyyy HH:mm')}">Finish</td>
+                                    <td th:text="${td.meetingPoint}">Meeting</td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(td.price, 0, 'COMMA', 0, 'POINT')}">Price</td>
+                                    <td class="text-center" th:text="${td.maxCapacity - td.amountCustomer}">Available</td>
+                                    <td class="text-center">
+                                        <form th:action="@{/booking/select-tour}" method="post" style="display: inline;">
+                                            <input type="hidden" name="tourDetailId" th:value="${td.id}" />
+                                            <input type="hidden" name="currentPage" th:value="${tourDetailPage.number + 1}" />
+                                            <input type="hidden" name="currentSize" th:value="${tourDetailPage.size}" />
+                                            <button type="submit" class="btn btn-success btn-sm" th:disabled="${td.id == selectedTourDetailId}">Chọn</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav aria-label="Page navigation" th:if="${tourDetailPage.totalPages > 1}" class="d-flex justify-content-center pagination-nav">
+                        <ul class="pagination pagination-sm">
+                            <li class="page-item" th:classappend="${tourDetailPage.first ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(page=1, size=${tourDetailPage.size})}">Đầu</a> </li>
+                            <li class="page-item" th:classappend="${tourDetailPage.first ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(page=${tourDetailPage.number}, size=${tourDetailPage.size})}" aria-label="Previous"> <span aria-hidden="true">&laquo;</span> </a> </li>
+                            <li class="page-item" th:each="pageNumber : ${tourPageNumbers}" th:classappend="${pageNumber == tourDetailPage.number + 1 ? 'active' : ''}"> <a class="page-link" th:href="@{/booking/new(page=${pageNumber}, size=${tourDetailPage.size})}" th:text="${pageNumber}">1</a> </li>
+                            <li class="page-item" th:classappend="${tourDetailPage.last ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(page=${tourDetailPage.number + 2}, size=${tourDetailPage.size})}" aria-label="Next"> <span aria-hidden="true">&raquo;</span> </a> </li>
+                            <li class="page-item" th:classappend="${tourDetailPage.last ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(page=${tourDetailPage.totalPages}, size=${tourDetailPage.size})}">Cuối</a> </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" id="selectedTourDetailIdInput" th:field="*{selectedTourDetailId}" />
+
+
+        <div class="card" th:if="*{selectedTourDetailId != null}">
+             <div class="card-header"><h4>2. Thông tin Khách hàng</h4></div>
+             <div class="card-body">
+                 <div class="mb-3">
+                     <div class="btn-group" role="group" aria-label="Customer Mode Toggle">
+                         <form th:action="@{/booking/search-customers}" method="post" style="display: inline;">
+                             <input type="hidden" name="customerKeyword" value=""> <button type="submit" class="btn" th:classappend="*{!addingNewCustomer ? 'btn-primary active' : 'btn-outline-primary'}">Chọn/Tìm KH</button>
+                         </form>
+                         <form th:action="@{/booking/add-new-customer-mode}" method="post" style="display: inline;">
+                              <button type="submit" class="btn" th:classappend="*{addingNewCustomer ? 'btn-primary active' : 'btn-outline-primary'}">Thêm Khách hàng Mới</button>
+                         </form>
+                     </div>
+                     <div th:if="*{selectedCustomerId != null}" class="alert alert-info mt-2 p-2">
+                         Đã chọn Khách hàng ID: <strong th:text="*{selectedCustomerId}"></strong>
+                         </div>
+                 </div>
+
+                 <div th:if="*{!addingNewCustomer}">
+                     <form th:action="@{/booking/search-customers}" method="post" class="row g-3 align-items-end mb-3">
+                         <div class="col-md-8">
+                             <label for="customerKeyword" class="form-label">Tìm Khách hàng (Tên, SĐT, Email)</label>
+                             <input type="text" class="form-control" id="customerKeyword" name="customerKeyword" placeholder="Nhập từ khóa để tìm..." th:value="*{customerSearchKeyword}">
+                         </div>
+                         <div class="col-md-4">
+                             <button type="submit" class="btn btn-secondary w-100">Tìm kiếm KH</button>
+                         </div>
+                     </form>
+                     <hr>
+
+                     <div class="initial-customer-list" th:if="${customerPage != null and bookingData.customerSearchResults == null}">
+                         <h6 th:if="${customerPage.hasContent()}">Danh sách Khách hàng:</h6>
+                         <div th:if="${!customerPage.hasContent()}" class="alert alert-info mt-3" role="alert">
+                             Không có khách hàng nào trong hệ thống.
+                         </div>
+                         <div class="table-responsive" th:if="${customerPage.hasContent()}">
+                             <table class="table table-sm table-hover table-bordered">
+                                 <thead class="table-light">
+                                     <tr><th>ID</th> <th>Họ Tên</th> <th>Email</th> <th>SĐT</th> <th>Hành động</th></tr>
+                                 </thead>
+                                 <tbody>
+                                     <tr th:each="cust : ${customerPage.content}" th:classappend="${cust.id == selectedCustomerId ? 'selected-row' : ''}">
+                                         <td th:text="${cust.id}">ID</td>
+                                         <td th:text="${cust.fullName?.lastName + ' ' + cust.fullName?.firstName}">Name</td>
+                                         <td th:text="${cust.email}">Email</td>
+                                         <td th:text="${cust.tel}">Phone</td>
+                                         <td class="text-center">
+                                             <form th:action="@{/booking/select-customer}" method="post" style="display: inline;">
+                                                 <input type="hidden" name="customerId" th:value="${cust.id}" />
+                                                 <input type="hidden" name="tourDetailId" th:value="*{selectedTourDetailId}" /> <button type="submit" class="btn btn-info btn-sm" th:disabled="${cust.id == selectedCustomerId}">Chọn</button>
+                                             </form>
+                                         </td>
+                                     </tr>
+                                 </tbody>
+                             </table>
+                         </div>
+                         <nav aria-label="Customer Page navigation" th:if="${customerPage.totalPages > 1}" class="d-flex justify-content-center pagination-nav">
+                            <ul class="pagination pagination-sm">
+                                <li class="page-item" th:classappend="${customerPage.first ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(tourDetailId=*{selectedTourDetailId}, page=${tourDetailPage?.number + 1}, size=${tourDetailPage?.size}, customerPage=1, customerSize=${customerPage.size})}">Đầu</a> </li>
+                                <li class="page-item" th:classappend="${customerPage.first ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(tourDetailId=*{selectedTourDetailId}, page=${tourDetailPage?.number + 1}, size=${tourDetailPage?.size}, customerPage=${customerPage.number}, customerSize=${customerPage.size})}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                                <li class="page-item" th:each="pageNumber : ${customerPageNumbers}" th:classappend="${pageNumber == customerPage.number + 1 ? 'active' : ''}"> <a class="page-link" th:href="@{/booking/new(tourDetailId=*{selectedTourDetailId}, page=${tourDetailPage?.number + 1}, size=${tourDetailPage?.size}, customerPage=${pageNumber}, customerSize=${customerPage.size})}" th:text="${pageNumber}">1</a> </li>
+                                <li class="page-item" th:classappend="${customerPage.last ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(tourDetailId=*{selectedTourDetailId}, page=${tourDetailPage?.number + 1}, size=${tourDetailPage?.size}, customerPage=${customerPage.number + 2}, customerSize=${customerPage.size})}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+                                <li class="page-item" th:classappend="${customerPage.last ? 'disabled' : ''}"> <a class="page-link" th:href="@{/booking/new(tourDetailId=*{selectedTourDetailId}, page=${tourDetailPage?.number + 1}, size=${tourDetailPage?.size}, customerPage=${customerPage.totalPages}, customerSize=${customerPage.size})}">Cuối</a> </li>
+                            </ul>
+                        </nav>
+                     </div>
+
+                     <div class="customer-search-results" th:if="*{customerSearchResults != null}">
+                         <h6 th:if="${not #lists.isEmpty(customerSearchResults)}">Kết quả tìm kiếm Khách hàng:</h6>
+                         <div th:if="${#lists.isEmpty(customerSearchResults) and customerSearchKeyword != null}" class="alert alert-warning" role="alert">
+                              Không tìm thấy khách hàng nào phù hợp với từ khóa "<strong th:text="*{customerSearchKeyword}"></strong>".
+                         </div>
+                         <div class="table-responsive" th:if="${not #lists.isEmpty(customerSearchResults)}">
+                             <table class="table table-sm table-hover table-bordered">
+                                 <thead class="table-light"> <tr> <th>ID</th> <th>Họ Tên</th> <th>Email</th> <th>SĐT</th> <th>Hành động</th> </tr> </thead>
+                                 <tbody>
+                                     <tr th:each="cust : *{customerSearchResults}" th:classappend="${cust.id == selectedCustomerId ? 'selected-row' : ''}">
+                                         <td th:text="${cust.id}">ID</td>
+                                         <td th:text="${cust.fullName?.lastName + ' ' + cust.fullName?.firstName}">Name</td>
+                                         <td th:text="${cust.email}">Email</td>
+                                         <td th:text="${cust.tel}">Phone</td>
+                                         <td class="text-center">
+                                             <form th:action="@{/booking/select-customer}" method="post" style="display: inline;">
+                                                 <input type="hidden" name="customerId" th:value="${cust.id}" />
+                                                 <input type="hidden" name="tourDetailId" th:value="*{selectedTourDetailId}" /> <button type="submit" class="btn btn-info btn-sm" th:disabled="${cust.id == selectedCustomerId}">Chọn</button>
+                                             </form>
+                                         </td>
+                                     </tr>
+                                 </tbody>
+                             </table>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div th:if="*{addingNewCustomer}" class="border p-3 rounded bg-light mt-3">
+                     <h5>Nhập thông tin Khách hàng mới</h5>
+                     <input type="hidden" th:field="*{addingNewCustomer}" />
+
+                     <div class="row g-3 mb-2">
+                         <div class="col-md-6">
+                             <label for="newLastName" class="form-label required-field">Họ</label>
+                             <input type="text" id="newLastName" th:field="*{newCustomer.fullName.lastName}" class="form-control form-control-sm" th:errorclass="is-invalid" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('newCustomer.fullName.lastName')}" th:errors="*{newCustomer.fullName.lastName}"></div>
+                         </div>
+                         <div class="col-md-6">
+                             <label for="newFirstName" class="form-label required-field">Tên</label>
+                             <input type="text" id="newFirstName" th:field="*{newCustomer.fullName.firstName}" class="form-control form-control-sm" th:errorclass="is-invalid" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('newCustomer.fullName.firstName')}" th:errors="*{newCustomer.fullName.firstName}"></div>
+                         </div>
+                     </div>
+                     <div class="row g-3 mb-2">
+                         <div class="col-md-6">
+                             <label for="newEmail" class="form-label required-field">Email</label>
+                             <input type="email" id="newEmail" th:field="*{newCustomer.email}" class="form-control form-control-sm" th:errorclass="is-invalid" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('newCustomer.email')}" th:errors="*{newCustomer.email}"></div>
+                         </div>
+                         <div class="col-md-6">
+                             <label for="newTel" class="form-label required-field">Điện thoại</label>
+                             <input type="tel" id="newTel" th:field="*{newCustomer.tel}" class="form-control form-control-sm" th:errorclass="is-invalid" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('newCustomer.tel')}" th:errors="*{newCustomer.tel}"></div>
+                         </div>
+                     </div>
+                     <div class="row g-3 mb-2">
+                         <div class="col-md-6">
+                             <label for="newUsername" class="form-label required-field">Tên đăng nhập</label>
+                             <input type="text" id="newUsername" th:field="*{newCustomer.username}" class="form-control form-control-sm" th:errorclass="is-invalid" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('newCustomer.username')}" th:errors="*{newCustomer.username}"></div>
+                         </div>
+                         <div class="col-md-6">
+                             <label for="newPassword" class="form-label required-field">Mật khẩu</label>
+                             <input type="password" id="newPassword" th:field="*{newCustomer.password}" class="form-control form-control-sm" th:errorclass="is-invalid" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('newCustomer.password')}" th:errors="*{newCustomer.password}"></div>
+                         </div>
+                     </div>
+                     <div class="row g-3 mb-2">
+                         <div class="col-md-6">
+                             <label for="newStreet" class="form-label">Đường/Số nhà</label>
+                             <input type="text" id="newStreet" th:field="*{newCustomer.address.street}" class="form-control form-control-sm">
+                         </div>
+                         <div class="col-md-6">
+                             <label for="newCity" class="form-label">Thành phố/Tỉnh</label>
+                             <input type="text" id="newCity" th:field="*{newCustomer.address.city}" class="form-control form-control-sm">
+                         </div>
+                     </div>
+                     <div class="row g-3 mb-2">
+                         <div class="col-md-6">
+                             <label for="newAge" class="form-label">Tuổi</label>
+                             <input type="number" id="newAge" th:field="*{newCustomer.age}" class="form-control form-control-sm">
+                         </div>
+                         </div>
+                 </div>
+
+             </div>
+         </div>
+
+         <input type="hidden" id="selectedCustomerIdInput" th:field="*{selectedCustomerId}" />
+
+
+        <div class="card" th:if="*{selectedTourDetailId != null and (selectedCustomerId != null or addingNewCustomer)}">
+             <div class="card-header"><h4>3. Thông tin Vé và Thanh toán</h4></div>
+             <div class="card-body">
+                 <div class="row g-3">
+                     <div class="col-md-6">
+                         <label for="numberOfTickets" class="form-label required-field">Số lượng vé</label>
+                         <input type="number" id="numberOfTickets" th:field="*{numberOfTickets}" class="form-control" th:errorclass="is-invalid" min="1" required>
+                         <div class="invalid-feedback" th:if="${#fields.hasErrors('numberOfTickets')}" th:errors="*{numberOfTickets}"></div>
+                     </div>
+                     <div class="col-md-6">
+                         <label for="paymentMethod" class="form-label required-field">Phương thức thanh toán</label>
+                         <select id="paymentMethod" th:field="*{paymentMethod}" class="form-select" th:errorclass="is-invalid" required>
+                             <option value="CASH">Tiền mặt</option>
+                             <option value="TRANSFER">Chuyển khoản</option>
+                             <option value="CARD">Thẻ</option>
+                         </select>
+                         <div class="invalid-feedback" th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+        <div class="text-end mt-4 mb-5" th:if="*{selectedTourDetailId != null and (selectedCustomerId != null or addingNewCustomer)}">
+            <button type="submit" class="btn btn-primary btn-lg">Hoàn tất Đặt vé</button>
+            <a th:href="@{/booking/new}" class="btn btn-secondary btn-lg">Hủy / Làm mới</a>
+        </div>
+
+    </form>
+</div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+    // Optional JavaScript for client-side enhancements can go here
+</script>
+</body>
+</html>

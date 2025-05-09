@@ -49,23 +49,19 @@ public class Order {
     @ToString.Exclude
     private Customer customer; // Type is Customer
 
-    // Relationship: Many Orders can be for one specific TourDetail (Unchanged)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tour_detail_id", nullable = false)
     @ToString.Exclude
     private TourDetail tourDetail;
 
-    // Relationship: One Order can have many Tickets (Unchanged)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Ticket> tickets;
 
-    // Relationship: Track which staff member handled the order
     @ManyToOne(fetch = FetchType.LAZY)
-    // JoinColumn refers to the ID in the 'users' table, but the type is Staff
     @JoinColumn(name = "salesperson_id", nullable = true) // Nullable if order placed online
     @ToString.Exclude
-    private Staff salesperson; // Type changed to Staff (polymorphism handles if it's a Manager)
+    private Staff salesperson;
 
     @PrePersist
     protected void onCreate() {

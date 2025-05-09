@@ -76,7 +76,7 @@
                 <div class="col-md-6">
                     <label for="password" class="form-label">Mật khẩu</label>
                     <input type="password" id="password" th:field="*{password}" class="form-control" th:errorclass="is-invalid" th:required="*{id == null}">
-                     <small class="form-text text-muted">Để trống nếu không muốn đổi mật khẩu khi cập nhật.</small>
+                     <small class="form-text text-muted">Để trống nếu không muốn đổi mật khẩu khi cập nhật. Bắt buộc khi tạo mới.</small>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                 </div>
             </div>
