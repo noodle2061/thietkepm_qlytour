@@ -291,13 +291,9 @@ public class BookingService {
              eventPublisher.publishEvent(new BookingSuccessEvent(this, savedOrder));
              LOGGER.log(Level.INFO, "Published BookingSuccessEvent for Order ID: {0}", savedOrder.getId());
         } catch (Exception e) {
-             // Log the error but DO NOT let it cause the main transaction to rollback.
-             // Email sending failure should ideally not prevent the booking itself.
              LOGGER.log(Level.SEVERE, "CRITICAL: Failed to publish BookingSuccessEvent for Order ID " + savedOrder.getId() + ". Email notification might not be sent.", e);
-             // Consider adding monitoring or a fallback mechanism for failed event publishing.
         }
 
-        // Return the saved order
         return savedOrder;
     }
 }
